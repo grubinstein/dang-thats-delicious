@@ -104,7 +104,7 @@ exports.searchStores = async (req,res) => {
 		score: { $meta: 'textScore' }
 	})
 	.sort({
-		score: { $meta: 'textScore'}
+		score: { $meta: 'textScore' }
 	})
 	res.json(stores);
 }
