@@ -911,7 +911,8 @@ label {
   position: relative; }
   .heart__button:after {
     content: '\2665\FE0F';
-    font-size: 20px;
+    font-size: 40px;
+    color: red;
     position: absolute;
     opacity: 0;
     top: 0; }

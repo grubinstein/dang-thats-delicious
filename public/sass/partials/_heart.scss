@@ -6,7 +6,8 @@
     position: relative;
     &:after {
       content: '♥️';
-      font-size: 20px;
+      font-size: 40px;
+      color: red;
       position: absolute;
       opacity: 0;
       top: 0;
