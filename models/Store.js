@@ -70,6 +70,35 @@ storeSchema.statics.getTagsList = function() {
 		{ $group: { _id: '$tags', count: { $sum: 1} } },
 		{ $sort: { count: -1 }}
 	]);
+};
+
+storeSchema.statics.getTopStores = function() {
+	return this.aggregate([
+		//Lookup store and populate their reviews
+		{ $lookup: {
+			from: 'reviews',
+			localField: '_id',
+			foreignField: 'store',
+			as: 'reviews'
+		}},
+		//(Note mongoDb lower cases and adds an s to your store name)
+
+		//filter for 2 or more reviews
+		{ $match: { 'reviews.1': { $exists: true} }},
+		//Add average review field
+		{ $project: { 
+			photo: '$$ROOT.photo',
+			name: '$$ROOT.name',
+			reviews: '$$ROOT.reviews',
+			slug: '$$ROOT.slug',
+			averageRating: { $avg: '$reviews.rating' }
+		}},
+		//(In mongodb 3.4 you can use addFields so you don't have to explicitly bring the existing fields back in)
+		//sort by new average field, highest first
+		{ $sort: { averageRating: -1 } },
+		//limit to 10 review
+		{ $limit: 10 }
+	])
 }
 
 storeSchema.virtual('reviews', {
@@ -77,5 +106,14 @@ storeSchema.virtual('reviews', {
 	localField: '_id',
 	foreignField: 'store'
 });
+
+function autopopulate(next) {
+	this.populate('reviews');
+	next();
+}
+
+storeSchema.pre('find', autopopulate);
+storeSchema.pre('findOne', autopopulate);
+
 
 module.exports = mongoose.model('Store', storeSchema);
